@@ -1,0 +1,5 @@
+Technical Program Manager — Fictional Data Company
+We are seeking a Technical Program Manager to coordinate a data-platform migration.
+Responsibilities include roadmap planning, risk and dependency management, and cross-team delivery.
+Required: SQL reporting and collaboration with engineering and product partners.
+Preferred: PMP certification and Kubernetes administration experience.
