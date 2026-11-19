@@ -17,6 +17,11 @@ st.caption('Your experience. A focused resume. Every selected fact traceable to 
 st.info('Prototype: offline demo works without an API key. AI mode selects evidence; source wording is preserved. No employer ATS score is claimed.')
 
 with st.sidebar:
+    api_key = st.text_input(
+        "OpenAI API key",
+        type="password",
+        help="Used for this session. Never included in your resume or committed to GitHub.",
+    )
     st.header('Workspace')
     mode = st.radio('Drafting mode', ['Offline demo', 'AI evidence selection'])
     model = st.text_input('OpenAI model', value=os.getenv('RESUME_MODEL', 'gpt-4.1-mini')) if mode.startswith('AI') else ''
@@ -59,7 +64,7 @@ if st.session_state.get('signature') != signature:
 if st.button('Build evidence-based draft', type='primary', disabled=profile is None):
     try:
         with st.spinner('Selecting relevant evidence…'):
-            ids = select_demo(profile, jd) if mode == 'Offline demo' else select_ai(profile, jd, os.getenv('RESUME_API_KEY'), model)
+            ids = select_demo(profile, jd) if mode == 'Offline demo' else select_ai(profile, jd, api_key or os.getenv('RESUME_API_KEY'), model)
             draft = render_resume(profile, ids)
             st.session_state.update(ids=ids, draft=draft, editor=draft, signature=signature, approved=False)
     except ValueError as exc:
