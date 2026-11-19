@@ -11,9 +11,13 @@ def reset_approval():
     st.session_state.approved = False
 
 
-st.set_page_config(page_title='Evidence • Resume Builder', page_icon='📄', layout='wide')
-st.title('Evidence • Resume Builder')
-st.caption('Your experience. A focused resume. Every selected fact traceable to its source.')
+st.set_page_config(
+    page_title="ResumeForge",
+    page_icon="📄",
+    layout="wide",
+)
+st.title("ResumeForge")
+st.caption("Tailored resumes, grounded in your experience.")
 st.info('Prototype: offline demo works without an API key. AI mode selects evidence; source wording is preserved. No employer ATS score is claimed.')
 
 with st.sidebar:
