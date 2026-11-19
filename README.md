@@ -6,9 +6,24 @@ ResumeForge is a downloadable portfolio project for tailoring a resume from one 
 
 ## Markdown agent kit
 
-1. Open the [assistant instructions](agent-kit/INSTRUCTIONS.md) and paste them into a new ChatGPT, Claude, or other assistant conversation.
-2. Save a local copy of the [blank profile template](agent-kit/profile-template.md), fill in verified facts, and remove unused placeholders. Supply one profile and one JD as separate inputs.
-3. Review the Markdown resume and its evidence notes. Try the kit first with the [fictional master profile](examples/profile.md) and [fictional job description](examples/job-description.txt). The kit files are also in the source ZIP once the updated repository is available there.
+### Create your agent once
+
+1. In **ChatGPT**, create a custom GPT named **ResumeForge** and open its **Instructions** field. In **Claude**, create a Project named **ResumeForge** and open **Set project instructions**. In other assistants, look for a custom agent or workspace with persistent instructions. Feature availability depends on your account.
+2. Copy the [ResumeForge agent instructions](agent-kit/INSTRUCTIONS.md) into that field and save the agent for private use. If the builder supports conversation starters, add `Tailor my resume to this job description.`
+3. Fill in the [blank master profile template](agent-kit/profile-template.md) with verified facts and remove unused placeholders. Keep it locally and attach it per run, or upload it once to the agent’s private knowledge if you are comfortable storing it with that provider. Keep only one person’s profile in an agent. Review sharing and data settings before uploading personal information.
+
+### Use it for each job description
+
+Open your saved ResumeForge GPT, or start a new chat inside your ResumeForge Project. Use a fresh conversation for each role. Send the message below and paste the full job description. Attach your master profile if you did not save it with the agent.
+
+```text
+Tailor my resume to this job description.
+
+Job description:
+[Paste the full job description here.]
+```
+
+Review the Markdown draft and the evidence gaps before using it. Test the setup with the [fictional master profile](examples/profile.md) and [fictional job description](examples/job-description.txt). The fictional applicant’s unsupported PMP and Kubernetes qualifications should appear only in the gap review. If your assistant lacks persistent instructions, paste the agent instructions into a new chat with the profile and JD. The kit itself requires no API key.
 
 ## Install and run locally
 
