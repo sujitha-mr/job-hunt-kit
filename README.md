@@ -1,46 +1,73 @@
-# Evidence Resume Builder
+# ResumeForge
 
-A working prototype of a resume builder based on the supplied Microsoft 365 Copilot agent design: select one person's master profile, paste a job description, select relevant evidence, review, and download an ATS-friendly Word document.
+ResumeForge is a downloadable portfolio project for tailoring a resume from one person's master profile and a target job description. Run the Streamlit app locally for review and Word export, or use the Markdown agent kit in an assistant you already use.
 
-## Run on Windows
+[Download the source ZIP](https://github.com/sujilearnsdatascience/job-hunt-kit/archive/refs/heads/main.zip) · [Watch or download the fictional-data demo](docs/demo/resumeforge-offline.mp4?raw=true)
 
-Python 3.12 is recommended. From this repository in PowerShell:
+## Markdown agent kit
+
+1. Open the [assistant instructions](agent-kit/INSTRUCTIONS.md) and paste them into a new ChatGPT, Claude, or other assistant conversation.
+2. Save a local copy of the [blank profile template](agent-kit/profile-template.md), fill in verified facts, and remove unused placeholders. Supply one profile and one JD as separate inputs.
+3. Review the Markdown resume and its evidence notes. Try the kit first with the [fictional master profile](examples/profile.md) and [fictional job description](examples/job-description.txt). The kit files are also in the source ZIP once the updated repository is available there.
+
+## Install and run locally
+
+Download and extract the source ZIP, or clone `https://github.com/sujilearnsdatascience/job-hunt-kit.git`. Open a terminal in the project directory. Python 3.12 is recommended.
+
+**Windows PowerShell**
 
 ```powershell
 py -3.12 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
-.\.venv\Scripts\python.exe -m streamlit run app.py
+.\.venv\Scripts\python.exe -m streamlit run app.py --server.address 127.0.0.1
 ```
 
-On Linux/macOS use `python3 -m venv .venv`, `.venv/bin/python -m pip install -r requirements.txt`, and `.venv/bin/python -m streamlit run app.py`.
+**macOS or Linux**
 
-Open the local address printed by Streamlit. Start with the fictional profile and JD. Upload a UTF-8 Markdown profile to replace the example. Profiles must use `# Person Name`, `## Career Evidence`, `### Employer | Dates`, an optional `**Official role:**` line, and accomplishment bullets. Also supported: `## Experience`, `## Skills and Tools`, `## Skills`, `## Education`, and `## Certifications`. Other sections, including instructions and guardrails, are excluded from resume evidence. Reconcile contradictory facts before upload: the parser does not independently verify claims or resolve conflicts.
+```bash
+python3.12 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python -m streamlit run app.py --server.address 127.0.0.1
+```
 
-## Optional AI mode
+Open the address printed by Streamlit. Stop the app with Ctrl+C.
 
-Offline mode uses word overlap; it does not call an AI model. AI mode calls OpenAI to select source fact IDs. Both modes retain the exact evidence wording and career order; free-form AI rewriting is intentionally deferred. Invalid IDs fail validation. The application generates documents from the current profile only.
+## Workflow
 
-Set `RESUME_API_KEY` securely in the server process and optionally set `RESUME_MODEL` (default `gpt-4.1-mini`). Never commit keys or paste them into profile files. In hosted environments, use their secure variable settings. The API endpoint `api.openai.com` must be permitted by network policy. API billing is separate from ChatGPT/Codex subscriptions.
+1. Keep the fictional profile and JD for a first run, or upload a UTF-8 Markdown profile and paste your target JD. Use `# Full name`, `## Career Evidence`, and `### Employer | Dates`, with `**Official role:**` and accomplishment bullets. The [template](agent-kit/profile-template.md) includes the supported optional sections.
+2. Select **Offline demo** and click **Build evidence-based draft**. Offline selection uses word overlap and requires no account or API key.
+3. Review **Evidence & gaps**, then edit the draft as needed in **Resume editor**. The audit table traces the original selection. Review any edits separately. Changes to the profile, JD, mode, or model discard the existing draft.
+4. Approve the reviewed draft and select **Download Word resume** or **Download Markdown**. Edits reset download approval. **Clear session** clears the active inputs and draft. Keep or delete downloaded files separately.
 
-AI generation transmits career evidence and the job description to OpenAI. Contact lines are excluded from that request, but evidence may still contain identifying or sensitive information. The app does not write uploads or drafts to disk, but this is not a production privacy guarantee. Use a private local instance; no user authentication, durable profile storage, or multi-user authorization is implemented.
+### Optional OpenAI mode
 
-## What is validated
+Select **AI evidence selection** and enter your own OpenAI API key in the password field. You can alternatively set `RESUME_API_KEY` in the local server process. The model defaults to `gpt-4.1-mini` and can be changed in the sidebar or via `RESUME_MODEL`. API usage requires an API account, model access, billing, and connectivity to `api.openai.com`. ChatGPT subscriptions and API billing are separate.
 
-Evidence IDs and original wording are checked deterministically. A Word export uses one column, standard headings, selectable text, and no tables. Manual edits reset download approval and require factual review. Word extraction tests check content preservation. The evidence table is an audit aid, and JD word overlap is explicitly labelled as lexical matching; neither establishes semantic entailment. ATS parsing varies, and no ranking or interview outcome is guaranteed. No misleading numerical ATS score is displayed.
+The model selects source fact IDs. The app validates the IDs against the current profile and renders the original wording in source order. Both modes preserve source wording. Bullet rewriting is outside the current scope.
 
-Changes to profile, JD, model or mode discard the previous draft from the interface. Multiple browser sessions are isolated by Streamlit session state; this is not a substitute for production account security. Clearing a session removes its active inputs and draft; files explicitly downloaded by the user remain on their machine.
+## Architecture and tech stack
+
+Streamlit handles the local interface and session state in `app.py`. The Python module `resume_builder.py` parses supported Markdown sections, assigns fact IDs, selects evidence, validates the selection, and renders the draft. The OpenAI Python SDK handles optional model calls. `python-docx` creates the single-column Word export with selectable text. Markdown downloads use the reviewed editor text. Pytest covers the core workflow and a mocked OpenAI response. Playwright and Chromium exercise the running app. See [architecture](docs/architecture.md) for the data flow.
+
+## Privacy and limitations
+
+Offline selection runs locally. The app keeps uploads and drafts in session state and generates exports when requested. OpenAI mode sends career evidence and the JD to OpenAI. The request omits parsed contact fields, though evidence and the JD can still contain identifying text. The Markdown kit shares whatever you submit with the assistant provider. Keep real profiles, resumes, and API keys out of version control. Use fictional data for public screenshots and demos.
+
+ResumeForge is intended for private local use. It has no login or durable profile store. The parser trusts the facts supplied by the user and cannot resolve conflicting claims. Offline word overlap and the evidence table can miss relevant experience or surface irrelevant matches. Manual edits require a factual review. Word formatting uses standard headings and a single column, and ATS behavior varies by employer. The app makes no ranking or interview guarantees.
 
 ## Tests
 
-```powershell
-.\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
-.\.venv\Scripts\python.exe -m pytest -q
+From the project directory, use your virtual environment's Python (`.venv/bin/python` on macOS/Linux or `.\.venv\Scripts\python.exe` on Windows):
+
+```bash
+python -m pip install -r requirements-dev.txt
+python -m pytest -q
 ```
 
-Tests cover exclusion of unsupported qualifications, invalid evidence IDs, profile isolation, intake errors, the AI adapter with a mocked response, DOCX text preservation, and the interface review/export/reset flow. No real profile or credential is included in tests.
+With the app running on port 8501, the Linux browser smoke test uses Chromium at `/usr/bin/chromium`:
 
-## Next increments
+```bash
+.venv/bin/python tests/browser_smoke.py
+```
 
-Structured evidence extraction and conflict handling; grounded paraphrasing with claim-level evaluation; semantic requirement mapping; visual resume/PDF exports; and profile management. Referral notes and the agent's scoring rubrics are not implemented in this first release.
-
-See [architecture](docs/architecture.md) for implementation decisions.
+The automated suite uses mocked AI responses. The browser test and recorded demo use fictional data in offline mode. These checks do not establish live API access, model availability, or billed request behavior.
